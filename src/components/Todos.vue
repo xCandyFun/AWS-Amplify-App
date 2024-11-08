@@ -6,7 +6,7 @@ const name = ref("");
 const responseMessage = ref(""); // Holds feedback for the user
 
 // Step Function ARN (change it to match your actual ARN)
-const stateMachineArn = process.env.VUE_APP_STEP_FUNCTION_URL;
+const stateMachineArn = import.meta.env.VITE_APP_STEP_FUNCTION_URL;
 
 // Function to send POST request to API Gateway using Amplify's API
 const sendPostRequest = async () => {
