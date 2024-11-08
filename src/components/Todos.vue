@@ -1,61 +1,59 @@
 <script setup lang="ts">
-import '@/assets/main.css';
-import { onMounted, ref } from 'vue';
-import type { Schema } from '../../amplify/data/resource';
-import { generateClient } from 'aws-amplify/data';
+import { ref } from 'vue'; // the import is '$amplify/env/<function-name>'
 
-const client = generateClient<Schema>();
+// Reactive reference for user input and response message
+const name = ref("");
+const responseMessage = ref(""); // Holds feedback for the user
 
-// create a reactive reference to the array of todos
-const todos = ref<Array<Schema['Todo']["type"]>>([]);
+// Step Function ARN (change it to match your actual ARN)
+const stateMachineArn = process.env.VUE_APP_STEP_FUNCTION_URL;
 
-function listTodos() {
-  client.models.Todo.observeQuery().subscribe({
-    next: ({ items, isSynced }) => {
-      todos.value = items
-     },
-  }); 
-}
+// Function to send POST request to API Gateway using Amplify's API
+const sendPostRequest = async () => {
+  console.log("Name value being sent:", name.value); // Debug: log name value
+  if (!name.value) {
+    responseMessage.value = "Please enter a name before submitting.";
+    return;
+  }
 
-function createTodo() {
-  client.models.Todo.create({
-    content: window.prompt("Todo content")
-  }).then(() => {
-    // After creating a new todo, update the list of todos
-    listTodos();
-  });
-}
+  try {
+    const response = await fetch("https://k96vgg4sf8.execute-api.eu-north-1.amazonaws.com/dev/execution", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        input: JSON.stringify({ name: name.value }),  // input should be a stringified JSON object
+        stateMachineArn: stateMachineArn,
+      }) // Sending the JSON payload
+    });
 
-function deleteTodo(id: string){
-  client.models.Todo.delete({ id });
-}
-    
-// fetch todos when the component is mounted
- onMounted(() => {
-  listTodos();
-});
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
 
+    const data = await response.json();
+    console.log("Response from API:", data);
+    responseMessage.value = "Request was successful!"; // Display success message
+    name.value = ""; // Clear the input field for the next entry
+
+  } catch (error) {
+    console.error("Error in API request:", error);
+    responseMessage.value = "Error in API request. Please try again."; // Error message
+  }
+};
 </script>
 
 <template>
   <main>
-    <h1>My todos</h1>
-    <button @click="createTodo">+ new</button>
-    <ul>
-      <li 
-        v-for="todo in todos" 
-        :key="todo.id"
-        @click="deleteTodo(todo.id)"
-        >
-        {{ todo.content }}
-      </li>
-    </ul>
-    <div>
-      🥳 App successfully hosted. Try creating a new todo.
-      <br />
-      <a href="https://docs.amplify.aws/gen2/start/quickstart/nextjs-pages-router/">
-        Review next steps of this tutorial.
-      </a>
-    </div>
+    <label for="name-input">Enter name:</label>
+    <input
+      id="name-input"
+      type="text"
+      v-model="name"
+      placeholder="Type a name..."
+    />
+    <button @click="sendPostRequest" :disabled="!name">Send POST Request</button>
+    <p v-if="responseMessage">{{ responseMessage }}</p> <!-- User feedback message -->
   </main>
 </template>
