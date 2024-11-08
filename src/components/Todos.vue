@@ -10,7 +10,6 @@ const stateMachineArn = import.meta.env.VITE_APP_STEP_FUNCTION_URL;
 
 // Function to send POST request to API Gateway using Amplify's API
 const sendPostRequest = async () => {
-  console.log("Name value being sent:", name.value); // Debug: log name value
   if (!name.value) {
     responseMessage.value = "Please enter a name before submitting.";
     return;
@@ -33,7 +32,6 @@ const sendPostRequest = async () => {
     }
 
     const data = await response.json();
-    console.log("Response from API:", data);
     responseMessage.value = "Request was successful!"; // Display success message
     name.value = ""; // Clear the input field for the next entry
 
