@@ -32,23 +32,11 @@ const signOutHandler = async () => {
 
         <router-view></router-view>
 
-        <!-- <HomePageVue /> -->
-        <!-- <Todos /> -->
-
       </template>
     </authenticator>
   </main>
 </template>
-<style lang="css" scoped>
-body{
-  position: relative;
-  background-image: url('./assets/images/background-image.webp');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  height: 100vh;
-  margin: 0;
-}
+<style scoped>
 h1#Title{
     width: 25%;
     margin: 0 auto;
