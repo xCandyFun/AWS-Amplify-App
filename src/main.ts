@@ -3,7 +3,7 @@ import { createApp } from "vue";
 import App from "./App.vue";
 import { Amplify } from "aws-amplify";
 import outputs from "../amplify_outputs.json";
-import router from './router';
+import router from './TheRouter';
 
 Amplify.configure(outputs);
 

@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router';
-import Home from './components/views/Home.vue';
+import Home from './components/views/StartView.vue';
 import ShowGames from './components/views/ShowGames.vue';
 import AddGame from './components/views/AddGame.vue';  // Assuming this component exists
 
