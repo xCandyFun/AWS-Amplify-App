@@ -14,6 +14,7 @@ dist-ssr
 coverage
 *.local
 .env
+background-image.webp
 
 /cypress/videos/
 /cypress/screenshots/
