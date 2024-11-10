@@ -23,9 +23,9 @@ const signOutHandler = async () => {
           <h1 id="Title">Welcome To Game-shop</h1>
           <nav class="Navbar">
             <router-link to="/"><button>Home</button></router-link>
-            <router-link to="/ShowGames"><button>Game List</button></router-link>
             <router-link to="/AddGame"><button>Add Game</button></router-link>
-            <button @click="signOutHandler">Sign Out</button>
+            <router-link to="/ShowGames"><button>Game List</button></router-link>
+            <button @click="signOutHandler" id="SignOutButton">Sign Out</button>
           </nav>
 
         </div>
@@ -49,6 +49,9 @@ h1#Title{
 .Navbar{
     border: solid black;
     background-color: rgba(255, 255, 255, 0.3);
+}
+button#SignOutButton{
+  float: right;
 }
 </style>
 
