@@ -34,7 +34,7 @@ export default defineComponent({
 
         console.log('Fetched data:', data);
 
-        const parsedData = JSON.parse(data.body);
+        const parsedData = typeof data.body === 'string' ? JSON.parse(data.body) : data.body;
         
         items.value = parsedData;
       } catch (error) {
