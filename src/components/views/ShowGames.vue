@@ -13,7 +13,9 @@ export default defineComponent({
   setup() {
     // Define the items array as a reactive variable
     const items = ref<DynamoDBItem[]>([]);
-
+    const displayedItems = ref<DynamoDBItem[]>([]);
+    const page = ref(1); // Start with the first page
+    const itemsPerPage = 5; // Number of items to display at a time
     // The function to fetch the items from your API
     const GetItems = async () => {
       try {
@@ -37,9 +39,19 @@ export default defineComponent({
         const parsedData = JSON.parse(data.body);
         
         items.value = parsedData;
+
+        displayedItems.value = items.value.slice(0, itemsPerPage);
+
       } catch (error) {
         console.error('GET call failed:', error); // Log the error
       }
+    };
+
+    const loadMoreItems = () => {
+        page.value += 1;
+        const startIndex = page.value * itemsPerPage - itemsPerPage;
+        const newItems = items.value.slice(startIndex, startIndex + itemsPerPage);
+        displayedItems.value = [...displayedItems.value, ...newItems];
     };
 
     // Call GetItems when the component is mounted
@@ -49,7 +61,9 @@ export default defineComponent({
 
     // Return the items to make it available in the template
     return {
-      items,
+        displayedItems,
+        items,
+        loadMoreItems,
     };
   },
 });
@@ -60,10 +74,11 @@ export default defineComponent({
     <div>
       <ul>
         <!-- Iterate over the items array and display each item's details -->
-        <li v-for="item in items" :key="item.Id">
-          {{ item.Name }} - {{ item.Genre }} - {{ item.Price }}kr
+        <li v-for="item in displayedItems" :key="item.Id">
+            {{ item.Name }} - {{ item.Genre }} - {{ item.Price }}kr
         </li>
-      </ul>
+        </ul>
+        <button v-if="displayedItems.length < items.length" @click="loadMoreItems">Load More</button>
     </div>
 </template>
 <style scoped>
@@ -129,6 +144,23 @@ p {
   font-size: 1.4rem;
   font-weight: bold;
   color: #28a745;
+}
+
+/* Load More Button */
+button {
+  display: block;
+  margin: 20px auto;
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+button:hover {
+  background-color: #0056b3;
 }
 
 /* Loading & Empty Message */
