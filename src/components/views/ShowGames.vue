@@ -70,7 +70,7 @@ export default defineComponent({
 </script>
 
 <template>
-    <h1>All Available Games</h1>
+  <h1>All Available Games</h1>
     <div>
       <ul>
         <!-- Iterate over the items array and display each item's details -->

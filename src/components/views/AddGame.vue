@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'; // the import is '$amplify/env/<function-name>'
+import { Authenticator } from "@aws-amplify/ui-vue";
+import "@aws-amplify/ui-vue/styles.css"
 
 // Reactive reference for user input and response message
 const name = ref("");
@@ -58,33 +60,37 @@ const sendPostRequest = async () => {
 </script>
 
 <template>
-  <main>
-    <p v-if="responseMessage" :class="['alert', alertType]">{{responseMessage }}</p> <!-- User feedback message -->
-    <div class="container">
-        <label for="name-input">Enter name:</label>
-        <input
-        id="name-input"
-        type="text"
-        v-model="name"
-        placeholder="Type a name..."
-        />
-        <label for="genre-input">Enter genre:</label>
-        <input
-        id="genre-input"
-        type="text"
-        v-model="genre"
-        placeholder="Type a genre..."
-        />
-        <label for="price-input">Enter price:</label>
-        <input
-        id="price-input"
-        type="text"
-        v-model="price"
-        placeholder="Type a price..."
-        />
-        <button @click="sendPostRequest" :disabled="!name && !genre && !price">Send POST Request</button>
-    </div>
-  </main>
+  <div class="LogInContainer">
+    <Authenticator initial-state="signIn" :hide-sign-up="true">
+      <main>
+        <p v-if="responseMessage" :class="['alert', alertType]">{{responseMessage }}</p> <!-- User feedback message -->
+        <div class="container">
+            <label for="name-input">Enter name:</label>
+            <input
+            id="name-input"
+            type="text"
+            v-model="name"
+            placeholder="Type a name..."
+            />
+            <label for="genre-input">Enter genre:</label>
+            <input
+            id="genre-input"
+            type="text"
+            v-model="genre"
+            placeholder="Type a genre..."
+            />
+            <label for="price-input">Enter price:</label>
+            <input
+            id="price-input"
+            type="text"
+            v-model="price"
+            placeholder="Type a price..."
+            />
+            <button @click="sendPostRequest" :disabled="!name && !genre && !price">Send POST Request</button>
+        </div>
+      </main>
+    </Authenticator>
+  </div>
 </template>
 
 <style scoped>
@@ -114,5 +120,8 @@ const sendPostRequest = async () => {
 .info {
   background-color: #2196F3;
   color: white;
+}
+.LogInContainer{
+  margin-top: 4em;
 }
 </style>

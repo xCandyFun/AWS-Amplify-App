@@ -1,40 +1,29 @@
 <script setup lang="ts">
 import { useRouter } from "vue-router";
-import { Authenticator } from "@aws-amplify/ui-vue";
-import "@aws-amplify/ui-vue/styles.css"
 import { signOut } from "aws-amplify/auth";
 
 const router = useRouter();
 
 const signOutHandler = async () => {
     await signOut();
-    router.push('/');
+    router.push('/AddGame');
   
 }
 
 </script>
-
 <template>
-  <main>
-    <authenticator>
-      <template v-slot="{ signOut }">
-        <div>
-    
-          <h1 id="Title">Welcome To Game-shop</h1>
-          <nav class="Navbar">
-            <router-link to="/"><button>Home</button></router-link>
-            <router-link to="/AddGame"><button>Add Game</button></router-link>
-            <router-link to="/ShowGames"><button>Game List</button></router-link>
-            <button @click="signOutHandler" id="SignOutButton">Sign Out</button>
-          </nav>
-
-        </div>
-
-        <router-view></router-view>
-
-      </template>
-    </authenticator>
-  </main>
+<main>
+  <div>
+    <h1 id="Title">Welcome To Game-shop</h1>
+    <nav class="Navbar">
+      <router-link to="/"><button class="NavButton">Home</button></router-link>
+      <router-link to="/ShowGames"><button class="NavButton">Game List</button></router-link>
+      <router-link to="/AddGame"><button class="NavButton">Add Game</button></router-link>
+      <button @click="signOutHandler" id="SignOutButton">Logout</button>
+    </nav>
+  </div>
+  <router-view></router-view>
+</main>
 </template>
 <style scoped>
 h1#Title{
@@ -52,6 +41,26 @@ h1#Title{
 }
 button#SignOutButton{
   float: right;
+  margin-right: 0.5em;
 }
+.NavButton{
+  margin-left: 2em;
+}
+
+button {
+  margin: 0.2em auto;
+  padding: 0.3em 0.6em;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 0.3em;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+button:hover { 
+  background-color: #0056b3;
+}
+
 </style>
 
