@@ -119,6 +119,7 @@ li {
   padding: 20px;
   text-align: center;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
+  user-select: none;
 }
 
 li:hover {
