@@ -33,8 +33,6 @@ const speakText = async (): Promise<void> => {
     const command = new SynthesizeSpeechCommand(params);
     const data = await pollyClient.send(command);
 
-    console.log(data);
-
     if (data.AudioStream) {
       // Convert the AudioStream to a Blob
       const audioBlob = await streamToBlob(data.AudioStream);
