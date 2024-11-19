@@ -1,32 +1,61 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-import { OutputFormat, PollyClient, SynthesizeSpeechCommand, VoiceId, type SynthesizeSpeechCommandInput } from '@aws-sdk/client-polly';
+import { ref, watch, computed } from 'vue';
+import {
+  OutputFormat,
+  PollyClient,
+  SynthesizeSpeechCommand,
+  type SynthesizeSpeechCommandInput,
+  DescribeVoicesCommand,
+  type Voice,
+} from '@aws-sdk/client-polly';
 import { fromCognitoIdentityPool } from '@aws-sdk/credential-providers';
-
-// Define the text input as a ref of string type
-const textInput = ref<string>('');
 
 // Define AWS region
 const regionAWS = 'eu-north-1';
 
-// Create the PollyClient with the appropriate type
+// Initialize the Polly client
 const pollyClient = new PollyClient({
   region: regionAWS,
   credentials: fromCognitoIdentityPool({
-    identityPoolId: import.meta.env.VITE_APP_USERPOOL_ID_Region as string, // Ensure the environment variable is treated as a string
+    identityPoolId: import.meta.env.VITE_APP_USERPOOL_ID_Region as string,
     clientConfig: { region: regionAWS },
   }),
 });
 
-// Define the function for speaking text, ensuring proper type for the params object
-const speakText = async (): Promise<void> => {
-  if (!textInput.value) return;
+// State variables for user input
+const textInput = ref<string>(''); // Text to synthesize
+const selectedLanguage = ref<string>(''); // Selected language
+const selectedVoice = ref<string>(''); // Selected voice
 
-  // Define params with the correct types
+// Data for languages and voices
+const voices = ref<Voice[]>([]); // All voices from Polly
+const languages = computed(() =>
+  [...new Set(voices.value.map((voice) => voice.LanguageName))]
+); // Unique languages
+const filteredVoices = computed(() =>
+  voices.value.filter((voice) => voice.LanguageName === selectedLanguage.value)
+); // Voices matching selected language
+
+// Fetch Polly voices and populate data
+const fetchVoices = async () => {
+  try {
+    const command = new DescribeVoicesCommand({});
+    const data = await pollyClient.send(command);
+    voices.value = data.Voices || [];
+  } catch (error) {
+    console.error('Error fetching voices:', error);
+  }
+};
+
+// Function to play synthesized speech
+const speakText = async (): Promise<void> => {
+  if (!textInput.value || !selectedVoice.value) return;
+
+  // Synthesize speech with selected voice
   const params: SynthesizeSpeechCommandInput = {
     Text: textInput.value,
-    OutputFormat: 'mp3' as OutputFormat, // Specify that OutputFormat is 'mp3'
-    VoiceId: 'Joanna' as VoiceId, // Specify the voice ID
+    OutputFormat: 'mp3' as OutputFormat,
+    VoiceId: selectedVoice.value as any, // Specify the selected voice
   };
 
   try {
@@ -46,15 +75,13 @@ const speakText = async (): Promise<void> => {
     console.error('Polly synthesis error:', error);
   }
 
-  // Helper function to convert the stream to a Blob
+  // Helper function to convert stream to Blob
   function streamToBlob(stream: any): Promise<Blob> {
     return new Promise((resolve, reject) => {
       const chunks: Uint8Array[] = [];
-
-      // Convert the AWS SDK stream to a standard ReadableStream
       const reader = stream.getReader();
 
-      const processStream = ({ done, value }: { done: boolean, value: Uint8Array }) => {
+      const processStream = ({ done, value }: { done: boolean; value: Uint8Array }) => {
         if (done) {
           resolve(new Blob(chunks));
           return;
@@ -66,15 +93,33 @@ const speakText = async (): Promise<void> => {
       reader.read().then(processStream).catch(reject);
     });
   }
-}
+};
+
+// Fetch voices on component mount
+fetchVoices();
 </script>
+
+
 <template>
-    <div class="container">
-        <textarea v-model="textInput" placeholder="Enter text to speak" class="TextArea"></textarea>
+  <div class="container">
+    <label for="language">Select Language:</label>
+    <select id="language" v-model="selectedLanguage">
+      <option v-for="lang in languages" :key="lang" :value="lang">{{ lang }}</option>
+    </select>
+    <label for="voice">Select Voice:</label>
+    <select id="voice" v-model="selectedVoice" :disabled="!selectedLanguage">
+      <option v-for="voice in filteredVoices" :key="voice.Id" :value="voice.Id">
+        {{ voice.Name }} ({{ voice.Gender }})
+      </option>
+    </select>
+  </div>
+  <div class="container">
+    <textarea v-model="textInput" placeholder="Enter text to speak" class="TextArea"></textarea>
         
-    </div>
-    <button @click="speakText" class="SpeakButton">Speak</button>
+  </div>
+  <button @click="speakText" class="SpeakButton">Speak</button>
 </template>
+
 <style scoped>
 .container {
     display: flex;
