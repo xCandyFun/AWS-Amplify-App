@@ -1,5 +1,7 @@
 <script lang="ts">
 import { defineComponent, onMounted, ref } from 'vue';
+import { PollyClient, SynthesizeSpeechCommand, type SynthesizeSpeechCommandInput } from '@aws-sdk/client-polly';
+import { fromCognitoIdentityPool } from '@aws-sdk/credential-providers';
 
 interface DynamoDBItem {
   Id: string;
@@ -54,6 +56,44 @@ export default defineComponent({
         displayedItems.value = [...displayedItems.value, ...newItems];
     };
 
+  const regionAWS = 'eu-north-1';
+
+  // Configure Polly client
+  const pollyClient = new PollyClient({
+      region: regionAWS,
+      credentials: fromCognitoIdentityPool({
+        identityPoolId: import.meta.env.VITE_APP_USERPOOL_ID_Region as string,
+        clientConfig: { region: regionAWS },
+      }),
+  });
+
+  const readItemsAloud = async () => {
+    const itemsWithoutId = items.value.map(({ Id, ...rest }) => rest);
+    const textToRead = JSON.stringify(itemsWithoutId, null, 2);
+
+    // Define params with the correct type
+    const params: SynthesizeSpeechCommandInput = {
+    OutputFormat: "mp3", // Use a valid enum value
+    Text: textToRead,
+    VoiceId: "Joanna", // Use a valid voice ID
+  };
+
+  try {
+    const command = new SynthesizeSpeechCommand(params); // Correct typing
+    const response = await pollyClient.send(command);
+
+    if (response.AudioStream) {
+      const audioStream = await response.AudioStream.transformToByteArray();
+      const audioBlob = new Blob([audioStream], { type: 'audio/mp3' });
+      const audioUrl = URL.createObjectURL(audioBlob);
+      const audio = new Audio(audioUrl);
+      audio.play();
+    }
+  } catch (error) {
+    console.error("Polly synthesis failed:", error);
+  }
+};
+
     // Call GetItems when the component is mounted
     onMounted(() => {
       GetItems();
@@ -64,18 +104,20 @@ export default defineComponent({
         displayedItems,
         items,
         loadMoreItems,
+        readItemsAloud,
     };
   },
 });
 </script>
 
 <template>
+  <button @click="readItemsAloud">Read Aloud</button>
   <h1>All Available Games</h1>
     <div>
       <ul>
         <!-- Iterate over the items array and display each item's details -->
         <li v-for="item in displayedItems" :key="item.Id">
-            {{ item.Name }} - {{ item.Genre }} - {{ item.Price }}kr
+          {{ item.Price }}kr - {{ item.Genre }} - {{ item.Name }}
         </li>
         </ul>
         <button v-if="displayedItems.length < items.length" @click="loadMoreItems">Load More</button>
