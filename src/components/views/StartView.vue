@@ -101,17 +101,20 @@ fetchVoices();
 
 
 <template>
-  <div class="container">
+  <div class="containerForLang">
     <label for="language">Select Language:</label>
     <select id="language" v-model="selectedLanguage">
       <option v-for="lang in languages" :key="lang" :value="lang">{{ lang }}</option>
     </select>
-    <label for="voice">Select Voice:</label>
-    <select id="voice" v-model="selectedVoice" :disabled="!selectedLanguage">
-      <option v-for="voice in filteredVoices" :key="voice.Id" :value="voice.Id">
-        {{ voice.Name }} ({{ voice.Gender }})
-      </option>
-    </select>
+    <div class="voice">
+      <label for="voice">Select Voice:</label>
+      <select id="voice" v-model="selectedVoice" :disabled="!selectedLanguage">
+        <option v-for="voice in filteredVoices" :key="voice.Id" :value="voice.Id">
+          {{ voice.Name }} ({{ voice.Gender }})
+        </option>
+      </select>
+    </div>
+
   </div>
   <div class="container">
     <textarea v-model="textInput" placeholder="Enter text to speak" class="TextArea"></textarea>
@@ -125,6 +128,19 @@ fetchVoices();
     display: flex;
     justify-content: center; 
     align-items: center; 
+}
+.containerForLang {
+    display: flex;
+    justify-content: center; 
+    align-items: center; 
+    border: solid black;
+    border-top: none;
+    background-color: rgba(255, 255, 255, 0.3);
+    margin-left: 40em;
+    margin-right: 40em;
+}
+.voice{
+  padding-left: 1em;
 }
 .TextArea{
     width: 20%;
