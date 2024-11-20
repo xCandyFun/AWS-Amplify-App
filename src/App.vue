@@ -19,6 +19,7 @@ const signOutHandler = async () => {
       <router-link to="/"><button class="NavButton">Home</button></router-link>
       <router-link to="/ShowGames"><button class="NavButton">Game List</button></router-link>
       <router-link to="/AddGame"><button class="NavButton">Add Game</button></router-link>
+      <router-link to="/"><button class="NavButton">About</button></router-link>
       <button @click="signOutHandler" id="SignOutButton">Logout</button>
     </nav>
   </div>
